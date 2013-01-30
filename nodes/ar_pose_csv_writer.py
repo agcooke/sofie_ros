@@ -5,17 +5,17 @@
 # This is a hack because the PYTables does not allow concurrent writing to the file,
 #thus a csv is created and then must be imported at a later stage. Needs refractoring.
 import sys
-import roslib; roslib.load_manifest('sofiehdfformat_rosdriver')
+#import roslib; roslib.load_manifest('sofie_ros')
 import rospy
 import os.path
-from ar_pose.msg import ARMarker
+from ar_track_alvar.msg import AlvarMarkers
 
 from sofiehdfformat.core.SofieCsvPyTableAccess import SofieCsvPyTableAccess
 from sofiehdfformat.core.SofieCsvParser import parse_sample_interpret as csv_sample_interpret
 from sofiehdfformat.core.SofieCsvAccess import SofieCsvAccess
 from sofiehdfformat.core.SofieCsvFile import CsvFile
+from sofiehdfformat.core.SofieFileUtils import defaultQuaternionTableStructure
 import signal
-from sofiehdfformat_rosdriver.fileUtils import tableStructure
 csvWriter = None;
 
 def getFileInfo():
@@ -36,6 +36,8 @@ def sofiewritercallback(data):
     '''
     rospy.logdebug(rospy.get_name() + ": Received Quaternion")
     rospy.logdebug(data)
+    #HACK-> Getting firset marker.
+    data = data.markers[0]
     #The Quatertion must be in the format [w x y z] (or [w i j k]) for MATLAB3DSpace.
 #    csvWriter.write(
 #        {
@@ -64,7 +66,7 @@ def sofiewritercallback(data):
 if __name__ == '__main__':
     csvfilename = getFileInfo()
     rospy.loginfo('Logging to file: {0}'.format(csvfilename))
-    csvWriter = SofieCsvAccess(csvfilename, tableStructure)
+    csvWriter = SofieCsvAccess(csvfilename, defaultQuaternionTableStructure)
     rospy.init_node('sofiehdfformatwriter', anonymous=True)
-    rospy.Subscriber("ar_pose_marker", ARMarker, sofiewritercallback)
+    rospy.Subscriber("/ar_pose_marker", AlvarMarkers, sofiewritercallback)
     rospy.spin()    

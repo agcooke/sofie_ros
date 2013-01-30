@@ -21,8 +21,17 @@
         <rosparam param="R">[1.0.0, 0.0, 0.0, 0.0, 1.0.0, 0.0, 0.0, 0.0, 1.0]</rosparam>
         <rosparam param="P">[558.70655574536931, 0.0, 316.68428342491319, 0.0, 0.0, 553.44501004322387, 238.23867473419315, 0.0, 0.0, 0.0, 1.0.0, 0.0]</rosparam>-->
     </node>
+    
+    <arg name="marker_size" default="$(arg markersize)" />
+	<arg name="max_new_marker_error" default="0.08" />
+	<arg name="max_track_error" default="0.2" />
+	<arg name="cam_image_topic" default="/usb_cam/image_raw" />
+	<arg name="cam_info_topic" default="/usb_cam/camera_info" />	
+	<arg name="output_frame" default="/ar_pose_marker" />
+
+	<node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
 	
-	<!--  AR POSE -->
+	<!--  AR POSE 
     <node name="ar_pose" pkg="ar_pose" type="ar_single" respawn="false" output="screen">
         <param name="marker_pattern" type="string" value="$(find ar_pose)/data/patt.hiro"/>
         <param name="marker_width" type="double" value="$(arg markersize)"/>
@@ -30,14 +39,14 @@
         <param name="marker_center_y" type="double" value="0.0"/>
         <param name="threshold" type="int" value="100"/>
         <param name="use_history" type="bool" value="false"/>
-    </node>
+    </node>-->
     	
     <!--  Start the SOFIE Logger -->
-    <node pkg="sofiehdfformat_rosdriver" name="sofie" type="ar_pose_csv_writer.py" output="log">
+    <node pkg="sofie_ros" name="sofie" type="ar_pose_csv_writer.py" output="log">
         <param name="csvfilename" value="$(arg csvfilename)" />
-    </node>
+    </node> 
     
     <!--  Start usb_cam bag -->
-      <node pkg="rosbag" type="record" name="record" 
-      	output="screen" args="-O $(arg usbcamrosbag) $(arg usbcamtopic)"/> 
+    <!--  <node pkg="rosbag" type="record" name="record" 
+      	output="screen" args="-O $(arg usbcamrosbag) $(arg usbcamtopic)"/> -->
 </launch>
