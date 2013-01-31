@@ -33,5 +33,5 @@
     
     <!--  Start usb_cam bag -->
     <node pkg="rosbag" type="record" name="record" 
-      	output="screen" args="-O $(arg usbcamrosbag) $(arg usbcamtopic)"/>
+      	output="screen" args="-O $(arg usbcamrosbag) -a "/>
 </launch>
