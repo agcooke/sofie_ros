@@ -37,6 +37,8 @@ def sofiewritercallback(data):
     rospy.logdebug(rospy.get_name() + ": Received Quaternion")
     rospy.logdebug(data)
     #HACK-> Getting firset marker.
+    if not data.markers:
+        return
     data = data.markers[0]
     #The Quatertion must be in the format [w x y z] (or [w i j k]) for MATLAB3DSpace.
 #    csvWriter.write(
