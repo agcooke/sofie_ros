@@ -32,6 +32,8 @@
     </node> 
     
     <!--  Start usb_cam bag -->
+    <group if="$(arg recordvideo)">
     <node pkg="rosbag" type="record" name="record" 
       	output="screen" args="-O $(arg usbcamrosbag) -a "/>
+    </group>
 </launch>
