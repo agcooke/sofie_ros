@@ -53,5 +53,28 @@ Then install the Arduino software
 
 	$ sudo apt-get install arduino
 
-The Arduino firmware is available in the file anglevalue.pde file.
+Follow the instructions on the ROS website: [http://www.ros.org/wiki/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup]
+
+If you get the error:
+
+	In file included from /home/${USER}/sketchbook/libraries/ros_lib/ros.h:39:0,
+	                 from anglevalue.cpp:6:
+	/home/${USER}/sketchbook/libraries/ros_lib/ArduinoHardware.h:38:22: fatal error: WProgram.h: No such file or directory
+	compilation terminated.
+
+then add the following line to /home/${USER}/sketchbook/libraries/ros_lib/ArduinoHardware.h:
+
+	#if defined(ARDUINO) && ARDUINO >= 100
+	  #include "Arduino.h"
+	#else
+	  #include "WProgram.h"
+	  #include <pins_arduino.h>
+	#endif
+	
+instead of:
+
+	  #include "WProgram.h"
+
+The Arduino firmware is available in the file anglevalue.ino file. When uploading to the board remember to specify
+the correct board that you use (We have a Arduino Nano).
 
