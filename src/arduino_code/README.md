@@ -1,5 +1,6 @@
 Sofie bicycle steering angle sensor
 ======
+Author: jcjbeers@g<you now where>.com
 
 This document describes how to setup and tweak the Sofie bicycle steering sensor.
 
