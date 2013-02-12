@@ -5,35 +5,42 @@
 <!--    <node pkg="tf" type="static_transform_publisher" name="world_to_cam"
               args="0 0 0.5 -1.57 0 -1.57 world usb_cam 10" />-->
 
-    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" respawn="false" output="log">
-        <param name="video_device" type="string" value="$(arg videodevice)"/>
-        <param name="camera_frame_id" type="string" value="usb_cam"/>
-        <param name="io_method" type="string" value="mmap"/>
-<!--        <param name="image_width" type="int" value="1920"/>-->
-<!--        <param name="image_height" type="int" value="1080"/>-->
-        <param name="pixel_format" type="string" value="yuyv"/>
-        <rosparam param="D">[0.029425, 0.062351, 0.004414, 0.000927, 0.0]</rosparam>
-        <rosparam param="K">[677.073487, 0.0, 317.751288, 0.0, 676.379322, 244.058597, 0.0, 0.0, 1.0]</rosparam>
-        <rosparam param="R">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]</rosparam>
-        <rosparam param="P">[689.258484, 0.0, 317.776916, 0.0, 0.0, 687.020508, 245.169737, 0.0, 0.0, 0.0, 1.0, 0.0]</rosparam>
-    </node>
-    
-    <arg name="marker_size" default="$(arg markersize)" />
-	<arg name="max_new_marker_error" default="0.08" />
-	<arg name="max_track_error" default="0.2" />
-	<arg name="cam_image_topic" default="/usb_cam/image_raw" />
-	<arg name="cam_info_topic" default="/usb_cam/camera_info" />	
-	<arg name="output_frame" default="/usb_cam" />
-
-	<node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
+	<group if="$(arg videodeviceconnected)">
+	    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" respawn="false" output="log">
+	        <param name="video_device" type="string" value="$(arg videodevice)"/>
+	        <param name="camera_frame_id" type="string" value="usb_cam"/>
+	        <param name="io_method" type="string" value="mmap"/>
+	<!--        <param name="image_width" type="int" value="1920"/>-->
+	<!--        <param name="image_height" type="int" value="1080"/>-->
+	        <param name="pixel_format" type="string" value="yuyv"/>
+	        <rosparam param="D">[0.029425, 0.062351, 0.004414, 0.000927, 0.0]</rosparam>
+	        <rosparam param="K">[677.073487, 0.0, 317.751288, 0.0, 676.379322, 244.058597, 0.0, 0.0, 1.0]</rosparam>
+	        <rosparam param="R">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]</rosparam>
+	        <rosparam param="P">[689.258484, 0.0, 317.776916, 0.0, 0.0, 687.020508, 245.169737, 0.0, 0.0, 0.0, 1.0, 0.0]</rosparam>
+	    </node>
+	    <arg name="marker_size" default="$(arg markersize)" />
+		<arg name="max_new_marker_error" default="0.08" />
+		<arg name="max_track_error" default="0.2" />
+		<arg name="cam_image_topic" default="/usb_cam/image_raw" />
+		<arg name="cam_info_topic" default="/usb_cam/camera_info" />	
+		<arg name="output_frame" default="/usb_cam" />
+	
+		<node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
+		 <!--  Start usb_cam bag -->
+	    <group if="$(arg recordvideo)">
+		    <node pkg="rosbag" type="record" name="record" 
+		      	output="screen" args="-O $(arg usbcamrosbag) -a "/>
+	    </group>
+	</group>
+	<group if="$(arg arduinodeviceconnected)">
+		<node name="arduino_reader" pkg="rosserial_python" type="serial_node.py" respawn="false" output="screen" args="$(arg arduinodevice)" />
+	</group>
+		
     <!--  Start the SOFIE Logger -->
     <node pkg="sofie_ros" name="sofie" type="ar_pose_csv_writer.py" output="log">
         <param name="csvfilename" value="$(arg csvfilename)" />
+        <param name="arduinocsvfilename" value="$(arg arduinocsvfilename)" />
     </node> 
     
-    <!--  Start usb_cam bag -->
-    <group if="$(arg recordvideo)">
-    <node pkg="rosbag" type="record" name="record" 
-      	output="screen" args="-O $(arg usbcamrosbag) -a "/>
-    </group>
+   
 </launch>

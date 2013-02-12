@@ -9,30 +9,32 @@ import sys
 import rospy
 import os.path
 from ar_track_alvar.msg import AlvarMarkers
-
+from std_msgs.msg import Int16
 from sofiehdfformat.core.SofieCsvPyTableAccess import SofieCsvPyTableAccess
 from sofiehdfformat.core.SofieCsvParser import parse_sample_interpret as csv_sample_interpret
 from sofiehdfformat.core.SofieCsvAccess import SofieCsvAccess
 from sofiehdfformat.core.SofieCsvFile import CsvFile
-from sofiehdfformat.core.SofieFileUtils import defaultQuaternionTableStructure
+from sofiehdfformat.core.SofieFileUtils import defaultQuaternionTableStructure,defaultAngleTableStructure
+import time
 import signal
 csvWriter = None;
+csvWriterArduino = None;
 
-def getFileInfo():
+def getFileInfo(waitParam='/sofie/csvfilename'):
     '''
     Get the File info from the ros parameter server.
     '''
     csvfilename = None
     while csvfilename == None:
         try:
-            csvfilename = rospy.get_param('/sofie/csvfilename')
+            csvfilename = rospy.get_param(waitParam)
         except KeyError:
             pass
     return csvfilename
 
-def sofiewritercallback(data):
+def sofieWriterCallback(data):
     '''
-    Implements a simple writer to SOFIEHDFFORMAT file.
+    Implements a simple writer to CSV file for Quaternion data.
     '''
     rospy.logdebug(rospy.get_name() + ": Received Quaternion")
     rospy.logdebug(data)
@@ -40,19 +42,6 @@ def sofiewritercallback(data):
     if not data.markers:
         return
     data = data.markers[0]
-    #The Quatertion must be in the format [w x y z] (or [w i j k]) for MATLAB3DSpace.
-#    csvWriter.write(
-#        {
-#        'id':data.header.seq,
-#        'confidence':data.confidence,
-#        'x':data.pose.pose.position.x,
-#        'y':data.pose.pose.position.y,
-#        'z':data.pose.pose.position.z,
-#        'quat1':data.pose.pose.orientation.w,
-#        'quat2':data.pose.pose.orientation.x,
-#        'quat3':data.pose.pose.orientation.y,
-#        'quat4':data.pose.pose.orientation.z,
-#        'timestamp':data.header.stamp.to_time()})
     csvWriter.write(
         (data.header.seq,
         data.confidence,
@@ -65,10 +54,28 @@ def sofiewritercallback(data):
         data.pose.pose.orientation.z,
         data.header.stamp.to_time()))
 
+    
+def sofieArduinoWriterCallback(data):
+    '''
+    Implements a simple writer to CSV file for angle data.
+    '''
+    timestamp = time.time()
+    rospy.logdebug(rospy.get_name() + ": Received Angle")
+    rospy.logdebug(data)
+    data = data.data
+    csvWriterArduino.write((data,timestamp))
+
 if __name__ == '__main__':
     csvfilename = getFileInfo()
     rospy.loginfo('Logging to file: {0}'.format(csvfilename))
     csvWriter = SofieCsvAccess(csvfilename, defaultQuaternionTableStructure)
-    rospy.init_node('sofiehdfformatwriter', anonymous=True)
-    rospy.Subscriber("/ar_pose_marker", AlvarMarkers, sofiewritercallback)
-    rospy.spin()    
+    csvWriterArduino = SofieCsvAccess(getFileInfo(waitParam='/sofie/arduinocsvfilename'),
+                                       defaultAngleTableStructure)
+    try:
+        rospy.init_node('sofiehdfformatwriter', anonymous=True)
+        rospy.Subscriber("/ar_pose_marker", AlvarMarkers, sofieWriterCallback)
+        rospy.Subscriber("/angle", Int16, sofieArduinoWriterCallback)
+        rospy.spin()
+    except:
+          csvWriter.close()
+          csvWriterArduino.close()      
