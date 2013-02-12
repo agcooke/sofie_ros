@@ -15,9 +15,10 @@ Tutorials].
 
 1.   Download and install from repository.
 
+
 	$ sudo apt-get install ros-groovy-rosserial
 
-### Using steering sensor
+### Using steering sensor (without sofie_ros)
 
 Of course ROS should run.
 	$ roscore
@@ -34,7 +35,8 @@ The sensor will broadcast data on a topic named 'angle'. A simple csv-file can b
 When using the SOFIE GUI a file consisting all of the sensor data can be created. This would include a 
 .bag-file with the steering angle data.
 
-
+__The arduino steering sensor file is now integrated fully into the sofie\_ros system using the 
+launch/simple_bridge_normal.launch file.__
 
 ### Altering the sensor firmware
 
