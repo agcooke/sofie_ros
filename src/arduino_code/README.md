@@ -45,7 +45,7 @@ This requires Arduino software, which is based on java. So if you don't have it 
 
 	$sudo apt-get install openjdk-7-jre
 
-Make sure the Braille-keyboard is not installed.
+Make sure the Braille-keyboard is not installed (this step might not be necessary).
 
 	$ sudo apt-get remove brltty
 
