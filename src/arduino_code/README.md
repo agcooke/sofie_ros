@@ -23,10 +23,12 @@ Of course ROS should run.
 	$ roscore
 When the sensor is plugged in a device will appear in /dev/ (eg /dev/ttyUSB0).
 Connect this device with ROS.
+
 	$ rosrun rosserial_python serial_node.py /dev/ttyUSB0
 
 The sensor will broadcast data on a topic named 'angle'. A simple csv-file can be created by saving incoming
  data and correlating linux-timestamp.
+ 
 	$ rostopic echo -p /angle > filename.csv
 
 When using the SOFIE GUI a file consisting all of the sensor data can be created. This would include a 
@@ -37,12 +39,15 @@ When using the SOFIE GUI a file consisting all of the sensor data can be created
 ### Altering the sensor firmware
 
 This requires Arduino software, which is based on java. So if you don't have it installed yet:
+
 	$sudo apt-get install openjdk-7-jre
 
 Make sure the Braille-keyboard is not installed.
+
 	$ sudo apt-get remove brltty
 
 Then install the Arduino software
+
 	$ sudo apt-get install arduino
 
 The Arduino firmware is available in the file anglevalue.pde file.
